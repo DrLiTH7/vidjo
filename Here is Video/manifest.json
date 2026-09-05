@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "M3U8 Sniffer & Bridge",
+  "version": "1.3",
+  "permissions": [
+    "webRequest",
+    "tabs",
+    "storage",
+    "scripting",
+    "clipboardWrite",
+    "notifications",
+    "nativeMessaging"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "idify@vidjo.com"
+    }
+  },
+  "host_permissions": [
+    "<all_urls>",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_loader.js", "content_bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_observer.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page_interceptor.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

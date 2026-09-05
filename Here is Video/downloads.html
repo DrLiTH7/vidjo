@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Downblob - Todos os Downloads</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      min-height: 100vh;
+      padding: 30px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #eef2ff;
+      border-radius: 10px;
+      color: #4f46e5;
+    }
+    .title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .title p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card:hover {
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .task-id {
+      font-size: 11px;
+      font-family: monospace;
+      background: #f3f4f6;
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: #6b7280;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 20px;
+    }
+    .status-badge.starting { background: #dbeafe; color: #1e40af; }
+    .status-badge.downloading { background: #e0e7ff; color: #3730a3; }
+    .status-badge.merging { background: #fef3c7; color: #92400e; }
+    .status-badge.done { background: #dcfce7; color: #166534; }
+    .status-badge.error { background: #fee2e2; color: #991b1b; }
+
+    .url {
+      font-size: 13px;
+      color: #374151;
+      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .progress-container {
+      margin-top: 5px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4f46e5;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-fill.done { background: #16a34a; }
+    .progress-fill.error { background: #dc2626; }
+    .progress-fill.merging { background: #f59e0b; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+      background: #fff;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+    }
+    .empty-state svg {
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .empty-state p {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: #dc2626;
+      margin-top: -5px;
+    }
+
+    .retry-btn {
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .retry-btn:hover {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </div>
+    <div class="title">
+      <h1>Downloads em Andamento</h1>
+      <p>Acompanhe o progresso de todos os vídeos sendo processados pelo servidor local.</p>
+    </div>
+  </div>
+
+  <div id="grid" class="grid">
+    <!-- Cards will be injected here -->
+  </div>
+
+  <script src="downloads.js"></script>
+</body>
+</html>

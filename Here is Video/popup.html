@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 10px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .topbar-logo svg {
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+      letter-spacing: -0.01em;
+    }
+    .topbar-title span {
+      color: #4f46e5;
+    }
+    .gear-btn {
+      all: unset;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      color: #6b7280;
+      transition: background 0.15s, color 0.15s;
+    }
+    .gear-btn:hover { background: #f3f4f6; color: #111827; }
+
+    /* ── Main content area ── */
+    #mainView, #settingsView {
+      padding: 14px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 28px 16px;
+      text-align: center;
+    }
+    .empty-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #eef2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4f46e5;
+    }
+    .empty-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .empty-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    /* ── Video card ── */
+    .video-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .video-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .video-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .video-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4f46e5;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .stream-count {
+      font-size: 12px;
+      color: #6b7280;
+      margin-left: auto;
+    }
+
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #374151;
+      background: #fff;
+      margin: 10px 0 6px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+    select:focus { outline: 2px solid #c7d2fe; border-color: #4f46e5; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 9px 14px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, opacity 0.15s;
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn:hover { filter: brightness(0.93); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary { background: #4f46e5; }
+    .btn-secondary { background: #7c3aed; }
+    .btn-neutral  { background: #6b7280; font-size: 12px; }
+    .btn-orange   { background: #f97316; font-size: 12px; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+      font-weight: 500;
+    }
+    .btn-ghost:hover { background: #f9fafb; filter: none; }
+
+    .btn-row {
+      display: flex;
+      gap: 7px;
+      margin-top: 7px;
+    }
+    .btn-row .btn { flex: 1; }
+
+    .action-area {
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Progress Bar ── */
+    .progress-container {
+      display: none;
+      padding: 10px 12px 12px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4f46e5;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Code block ── */
+    .code-section {
+      margin-top: 10px;
+    }
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+    }
+    textarea {
+      width: 100%;
+      height: 160px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      background: #f9fafb;
+      color: #374151;
+      resize: none;
+    }
+    textarea:focus { outline: 2px solid #c7d2fe; border-color: #4f46e5; }
+
+    /* ── Status message ── */
+    #statusMsg {
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+      padding: 6px 0 0;
+      min-height: 22px;
+    }
+
+    /* ── Settings ── */
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .settings-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .setting-group {
+      margin-bottom: 12px;
+    }
+    .setting-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .setting-group input[type="text"],
+    .setting-group input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      color: #111827;
+      transition: border-color 0.15s;
+    }
+    .setting-group input:focus {
+      outline: 2px solid #c7d2fe;
+      border-color: #4f46e5;
+    }
+    .setting-hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .settings-divider {
+      border: none;
+      border-top: 1px solid #f3f4f6;
+      margin: 14px 0;
+    }
+
+    .settings-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .settings-actions .btn { flex: 1; padding: 9px; }
+    #saveSettingsBtn { background: #4f46e5; }
+    #backBtn { background: transparent; border: 1px solid #e5e7eb; color: #374151; font-weight: 500; }
+    #backBtn:hover { background: #f9fafb; filter: none; }
+
+    #settingsSavedMsg {
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+
+    /* ── Scan button (empty state) ── */
+    #scanBtn {
+      margin-top: 10px;
+      background: #4f46e5;
+      width: auto;
+      padding: 8px 18px;
+      border-radius: 7px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar (always visible) -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="6" fill="#eef2ff"/>
+        <path d="M8 6.5L18 12L8 17.5V6.5Z" fill="#4f46e5"/>
+      </svg>
+      <span class="topbar-title">Here is <span>Video</span></span>
+    </div>
+    <div style="display:flex; gap: 4px;">
+      <button class="gear-btn" id="downloadsBtn" title="Todos os Downloads">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+      </button>
+      <button class="gear-btn" id="gearBtn" title="Configurações">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main view -->
+  <div id="mainView">
+    <div id="info">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+        </div>
+        <p class="empty-title">Nenhum stream detectado</p>
+        <p class="empty-sub">Dê play no vídeo e reabra o popup.<br>A extensão captura a URL e os headers automaticamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings view -->
+  <div id="settingsView" style="display:none">
+    <div class="settings-header">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span class="settings-header-title">Configurações</span>
+    </div>
+
+    <div class="setting-group">
+      <label for="cfgBackendUrl">URL do backend</label>
+      <input type="text" id="cfgBackendUrl" placeholder="http://127.0.0.1:8000">
+      <p class="setting-hint">Endereço onde o main.py está rodando.</p>
+    </div>
+
+    <div class="setting-group">
+      <label for="cfgSavePath">Pasta de destino</label>
+      <input type="text" id="cfgSavePath" placeholder="Padrão do servidor">
+      <p class="setting-hint">Caminho absoluto para salvar os .mp4. Vazio = padrão do servidor.</p>
+    </div>
+
+    <div class="setting-group">
+      <label for="cfgQuality">Qualidade preferida</label>
+      <select id="cfgQuality" style="margin:0">
+        <option value="highest">Melhor disponível</option>
+        <option value="1080p">1080p</option>
+        <option value="720p">720p</option>
+        <option value="480p">480p</option>
+        <option value="360p">360p</option>
+        <option value="240p">240p</option>
+        <option value="lowest">Menor disponível</option>
+      </select>
+      <p class="setting-hint">Usada quando o link contém um master playlist com múltiplas resoluções.</p>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="setting-group">
+      <label for="cfgThreads">Threads do FFmpeg</label>
+      <input type="number" id="cfgThreads" min="0" max="64" placeholder="0">
+      <p class="setting-hint">0 = automático (recomendado).</p>
+    </div>
+
+    <div class="setting-group">
+      <label for="cfgMaxConcurrent">Segmentos simultâneos</label>
+      <input type="number" id="cfgMaxConcurrent" min="1" max="100" placeholder="20">
+      <p class="setting-hint">Quantos segmentos .ts baixar ao mesmo tempo.</p>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="setting-group">
+      <label for="cfgDomainBlacklist">Domínios ignorados (Blacklist)</label>
+      <input type="text" id="cfgDomainBlacklist" placeholder="ex: ads.com, tracker.net">
+      <p class="setting-hint">Separe por vírgula. O sniffer ignorará m3u8 desses sites.</p>
+    </div>
+
+    <div class="settings-actions">
+      <button class="btn" id="backBtn">← Voltar</button>
+      <button class="btn" id="saveSettingsBtn">Salvar</button>
+    </div>
+    <p id="settingsSavedMsg"></p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

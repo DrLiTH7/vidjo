@@ -1,0 +1,75 @@
+# General OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.vs/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.python-version
+uv.lock
+Pipfile.lock
+
+# Vidjo / IDIFY specific downloads and temps
+IDIFY/videos/
+IDIFY/completed_videos/
+IDIFY/tmp_files/
+IDIFY/logs/
+IDIFY/*.log
+IDIFY/ffmpeg_debug*.log
+IDIFY/tasks.json
+IDIFY/com.vidjo.idify.json
+
+# Sensitive / User Config (Uncomment to ignore)
+# IDIFY/config.py
+
+# Extension builds / archives
+*.zip
+*.xpi
+*.crx

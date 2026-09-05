@@ -1,0 +1,32 @@
+[Unit]
+Description=IDIFY - HLS video downloader backend
+After=network.target
+
+[Service]
+Type=simple
+
+# Ajuste os caminhos abaixo para o seu ambiente:
+# - User: seu usuário Linux
+# - WorkingDirectory: caminho absoluto até a pasta IDIFY
+# - ExecStart: usa o python do venv se existir, ou o do sistema
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/downblob/IDIFY
+
+ExecStart=/bin/bash -c '\
+    if [ -f venv/bin/python ]; then \
+        venv/bin/python main.py; \
+    else \
+        python3 main.py; \
+    fi'
+
+# Reinicia automaticamente se o processo cair
+Restart=on-failure
+RestartSec=5
+
+# Variáveis de ambiente opcionais
+# Environment=PYTHONUNBUFFERED=1
+
+[Install]
+# Inicia junto com o sistema no login do usuário (use multi-user.target
+# para iniciar como serviço de sistema independente de login)
+WantedBy=default.target

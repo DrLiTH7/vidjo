@@ -1,0 +1,7 @@
+{
+  "name": "com.vidjo.idify",
+  "description": "IDIFY Native Messaging Host",
+  "path": "C:\\Projetos\\Vidjo\\IDIFY\\host.bat",
+  "type": "stdio",
+  "allowed_origins": [ "chrome-extension://*/*" ]
+}

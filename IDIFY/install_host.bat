@@ -31,6 +31,9 @@ REG ADD "HKCU\Software\Mozilla\NativeMessagingHosts\com.vidjo.idify" /ve /t REG_
 echo Registering Native Messaging Host for Chrome...
 REG ADD "HKCU\Software\Google\Chrome\NativeMessagingHosts\com.vidjo.idify" /ve /t REG_SZ /d "%MANIFEST_CHROME%" /f
 
+echo Registering Native Messaging Host for Edge...
+REG ADD "HKCU\Software\Microsoft\Edge\NativeMessagingHosts\com.vidjo.idify" /ve /t REG_SZ /d "%MANIFEST_CHROME%" /f
+
 echo.
 echo Installed successfully! You can close this window.
 pause

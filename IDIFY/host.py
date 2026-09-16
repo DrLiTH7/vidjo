@@ -53,13 +53,19 @@ def main():
                     if os.path.exists(pythonw):
                         exe_path = pythonw
                 
+                env = os.environ.copy()
+                scripts_dir = os.path.dirname(exe_path)
+                if scripts_dir and scripts_dir not in env.get("PATH", ""):
+                    env["PATH"] = scripts_dir + os.pathsep + env.get("PATH", "")
+
                 subprocess.Popen(
                     [exe_path, server_path],
                     cwd=os.path.dirname(os.path.abspath(__file__)),
                     creationflags=creationflags,
                     stdout=subprocess.DEVNULL,
                     stderr=crash_log,
-                    stdin=subprocess.DEVNULL
+                    stdin=subprocess.DEVNULL,
+                    env=env
                 )
                 
                 logging.info("Server started successfully")

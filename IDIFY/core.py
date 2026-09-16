@@ -7,7 +7,7 @@ import subprocess
 import traceback
 from log import logger
 from typing import Tuple
-from utils import get_url_basename, sanitize_filename
+from utils import get_url_basename, sanitize_filename, get_binary_path
 from urllib.parse import urljoin
 from downloader import Downloader, Task
 from config import DownloaderConfig, FfmpegConfig, GetConfig
@@ -387,8 +387,9 @@ class BlobDownloader:
     async def merge_media(self, local_m3u8_files: list[str], save_path: str, threads: int | None = None, progress_hook = None) -> str:
         threads = threads if threads is not None else FfmpegConfig.get("threads", 0)
 
+        ffmpeg_bin = get_binary_path("ffmpeg")
         ffmpeg_cmd = [
-            "ffmpeg",
+            ffmpeg_bin,
             "-fflags", "+genpts",
             "-allowed_extensions", "ALL",
             "-protocol_whitelist", "file,http,https,tcp,tls,crypto",

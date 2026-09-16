@@ -11,6 +11,7 @@ import subprocess
 from aiohttp import web
 from core import BlobDownloader
 from log import logger
+from utils import get_binary_path
 
 # Store the global downloader instance
 downloader = BlobDownloader(clean_tmp=True)
@@ -137,7 +138,8 @@ async def run_download_task(task_id, url, headers, save_path, threads, max_concu
             logger.error(f"Download failed: {error_msg}")
             
             # Auto fallback to yt-dlp if available
-            has_ytdlp = shutil.which("yt-dlp") is not None or os.path.exists(os.path.join("venv", "Scripts", "yt-dlp.exe"))
+            ytdlp_bin = get_binary_path("yt-dlp")
+            has_ytdlp = shutil.which(ytdlp_bin) is not None or os.path.isfile(ytdlp_bin)
             if has_ytdlp and not active_tasks[task_id].get("_fallback_attempted"):
                 logger.info(f"Task {task_id} failed natively, auto-falling back to yt-dlp...")
                 active_tasks[task_id]["_fallback_attempted"] = True
@@ -160,7 +162,8 @@ async def run_download_task(task_id, url, headers, save_path, threads, max_concu
     except Exception as e:
         logger.error(f"Error executing download from extension: {e}\n{traceback.format_exc()}")
         if task_id in active_tasks:
-            has_ytdlp = shutil.which("yt-dlp") is not None or os.path.exists(os.path.join("venv", "Scripts", "yt-dlp.exe"))
+            ytdlp_bin = get_binary_path("yt-dlp")
+            has_ytdlp = shutil.which(ytdlp_bin) is not None or os.path.isfile(ytdlp_bin)
             if has_ytdlp and not active_tasks[task_id].get("_fallback_attempted"):
                 logger.info(f"Task {task_id} threw an exception natively, auto-falling back to yt-dlp...")
                 active_tasks[task_id]["_fallback_attempted"] = True
@@ -188,14 +191,18 @@ async def run_ytdlp_download(task_id, url, save_path, save_name, headers=None):
             
         final_file = os.path.join(final_save_path, save_name)
         
+        ytdlp_bin = get_binary_path("yt-dlp")
+        ffmpeg_bin = get_binary_path("ffmpeg")
         args = [
-            "yt-dlp",
+            ytdlp_bin,
             "--newline",
             "--no-playlist",
             "-f", "bestvideo+bestaudio/best",
             "--merge-output-format", "mp4",
             "-o", final_file
         ]
+        if os.path.isfile(ffmpeg_bin) or shutil.which(ffmpeg_bin):
+            args.extend(["--ffmpeg-location", os.path.dirname(os.path.abspath(ffmpeg_bin))])
         
         if headers:
             for k, v in headers.items():
@@ -450,28 +457,30 @@ def create_app():
     return app
 
 def _check_ffmpeg():
+    ffmpeg_bin = get_binary_path("ffmpeg")
     try:
         creationflags = 0
         if os.name == 'nt':
             creationflags = subprocess.CREATE_NO_WINDOW
-        subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creationflags)
-        logger.info("ffmpeg found: OK")
+        subprocess.run([ffmpeg_bin, "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creationflags)
+        logger.info(f"ffmpeg found: OK ({ffmpeg_bin})")
     except Exception:
         logger.error(
-            "ffmpeg NOT found in PATH! Merge step will fail. "
+            f"ffmpeg NOT found in PATH or venv ({ffmpeg_bin})! Merge step will fail. "
             "Install ffmpeg and make sure it is in the system PATH."
         )
 
 def _check_ytdlp():
+    ytdlp_bin = get_binary_path("yt-dlp")
     try:
         creationflags = 0
         if os.name == 'nt':
             creationflags = subprocess.CREATE_NO_WINDOW
-        subprocess.run(["yt-dlp", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creationflags)
-        logger.info("yt-dlp found: OK (Fallback engine available)")
+        subprocess.run([ytdlp_bin, "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creationflags)
+        logger.info(f"yt-dlp found: OK ({ytdlp_bin}) (Fallback engine available)")
     except Exception:
         logger.warning(
-            "yt-dlp NOT found in PATH! Fallback engine will fail. "
+            f"yt-dlp NOT found in PATH or venv ({ytdlp_bin})! Fallback engine will fail. "
             "Install yt-dlp to support downloading encrypted/complex sites."
         )
 
